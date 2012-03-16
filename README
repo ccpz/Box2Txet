@@ -1,0 +1,10 @@
+This script read MLB gameday XML file from: http://gd2.mlb.com/components/game/mlb/,
+then convert to plain text
+
+USAGE:
+./Box2Txet.rb <Path>
+
+Example:
+./Box2Txet.rb /year_2012/month_03/day_15/gid_2012_03_15_nyamlb_wasmlb_1/
+
+This will read gameday data at http://gd2.mlb.com/components/game/mlb/year_2012/month_03/day_15/gid_2012_03_15_nyamlb_wasmlb_1/
