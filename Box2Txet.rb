@@ -1,6 +1,11 @@
 require 'net/http'
 require 'rexml/document'
+
 require 'terminal-table/import'
+
+def wrap(s, width=60)
+  s.gsub(/(.{1,#{width}})(\s+|\Z)/, "\\1\n")
+end
 
 def tag_convert(str)
 	str.gsub(/^<br\/>/, "").gsub(/<br\/>/, "\n").gsub(/<b>(.*?)<\/b>:/, '  \1:').gsub(/<b>(.*?)<\/b>/, '\1')
@@ -98,11 +103,36 @@ def pitcher(doc, filter)
     linebuf
 end
 
-def hr(doc)
+def scoring_summary(doc, away, home)
+	table = Terminal::Table.new
+	table.style = {:width => 80}
+	table.headings = [away, home, '']
+	inning=''
+	REXML::XPath.each( doc, "//atbat[@away_team_runs]") do |e|
+		away_score = e.attributes['away_team_runs'].to_s
+		home_score = e.attributes['home_team_runs'].to_s
+		if(e.parent.name.to_s=="top")
+			away_score = "\033[1;33m"+away_score+"\033[m"
+		else
+			home_score = "\033[1;33m"+home_score+"\033[m"
+		end
+		inning_str = e.parent.name+' '+e.parent.parent.attributes['num']
+		if(inning_str!=inning)
+			if(inning!='')
+				table.add_separator
+			end
+			table.add_row [{:value => "\033[1;32m"+inning_str+"\033[m", :colspan => 3}]
+			table.add_separator
+			inning=inning_str
+		end
+		table.add_row [away_score, home_score, wrap(e.attributes['des'].gsub(/ +/, ' '))]
+	end
+	return table.to_s
 end
 
 url = 'http://gd2.mlb.com/components/game/mlb/'<<ARGV[0]
-
+away_name=''
+home_name=''
 #linescore
 xml_data = Net::HTTP.get_response(URI.parse(url+'/miniscoreboard.xml')).body
 doc = REXML::Document.new(xml_data)
@@ -112,8 +142,10 @@ head =['']
 end_inning = doc.root.elements['game_status'].attributes['inning'].to_i
 head.concat((1..end_inning).to_a)
 head.concat(['R', 'H', 'E'])
-rows[0] << sprintf("\033[1;31;42m%s (%d-%d)\033[m", doc.root.attributes['away_name_abbrev'], doc.root.attributes['away_win'], doc.root.attributes['away_loss'])
-rows[1] << sprintf("\033[1;34;43m%s (%d-%d)\033[m", doc.root.attributes['home_name_abbrev'], doc.root.attributes['home_win'], doc.root.attributes['home_loss'])
+away_name=doc.root.attributes['away_name_abbrev']
+home_name=doc.root.attributes['home_name_abbrev']
+rows[0] << sprintf("\033[1;31;42m%s (%d-%d)\033[m", away_name, doc.root.attributes['away_win'], doc.root.attributes['away_loss'])
+rows[1] << sprintf("\033[1;34;43m%s (%d-%d)\033[m", home_name, doc.root.attributes['home_win'], doc.root.attributes['home_loss'])
 
 map = {'away'=>0, 'home'=>1}
 
@@ -156,6 +188,11 @@ e = doc.root.elements['post_game'].elements['save_pitcher']
 if(e)
     linebuf<<sprintf("SV: %s (%d-%d %d S ERA %s)", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['saves'], e.attributes['era'])
 end
+
+xml_data = Net::HTTP.get_response(URI.parse(url+'/game_events.xml')).body
+doc = REXML::Document.new(xml_data)
+
+puts scoring_summary(doc, away_name, home_name)
 
 xml_data = Net::HTTP.get_response(URI.parse(url+'/boxscore.xml')).body
 doc = REXML::Document.new(xml_data)
