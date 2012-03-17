@@ -1,5 +1,6 @@
 require 'net/http'
 require 'rexml/document'
+require 'terminal-table/import'
 
 def tag_convert(str)
 	str.gsub(/^<br\/>/, "").gsub(/<br\/>/, "\n").gsub(/<b>(.*?)<\/b>:/, '  \1:').gsub(/<b>(.*?)<\/b>/, '\1')
@@ -106,34 +107,41 @@ url = 'http://gd2.mlb.com/components/game/mlb/'<<ARGV[0]
 xml_data = Net::HTTP.get_response(URI.parse(url+'/miniscoreboard.xml')).body
 doc = REXML::Document.new(xml_data)
 
-linebuf = []
-linebuf[1] = sprintf("\033[1;31;42m%s (%d-%d)\033[m ", doc.root.attributes['away_name_abbrev'], doc.root.attributes['away_win'], doc.root.attributes['away_loss'])
-linebuf[2] = sprintf("\033[1;34;43m%s (%d-%d)\033[m ", doc.root.attributes['home_name_abbrev'], doc.root.attributes['home_win'], doc.root.attributes['home_loss'])
-linebuf[0] = ' '*10+"\033[1;31m"
-(1..9).each {|i| linebuf[0]<<sprintf("%3d",i)} 
-linebuf[0] << "\033[m  R  H  E"
+rows =[[], []]
+head =['']
+end_inning = doc.root.elements['game_status'].attributes['inning'].to_i
+head.concat((1..end_inning).to_a)
+head.concat(['R', 'H', 'E'])
+rows[0] << sprintf("\033[1;31;42m%s (%d-%d)\033[m", doc.root.attributes['away_name_abbrev'], doc.root.attributes['away_win'], doc.root.attributes['away_loss'])
+rows[1] << sprintf("\033[1;34;43m%s (%d-%d)\033[m", doc.root.attributes['home_name_abbrev'], doc.root.attributes['home_win'], doc.root.attributes['home_loss'])
+
+map = {'away'=>0, 'home'=>1}
 
 doc.elements.each('game/linescore/inning') do |inn|
-	if(inn.attributes['away'].to_i>0)
-		linebuf[1]<<sprintf("\033[1;33m%3d\033[m", inn.attributes['away'])
-	else
-		linebuf[1]<<sprintf("%3d", inn.attributes['away'])
-	end
-	if(inn.attributes['home'])
-		if(inn.attributes['home'].to_i>0)
-			linebuf[2]<<sprintf("\033[1;33m%3d\033[m", inn.attributes['home'])
+	['away', 'home'].each do |i|
+		if(inn.attributes[i]==nil)
+			rows[map[i]]<<'X'
+		elsif(inn.attributes[i].to_i>0)
+			rows[map[i]]<<sprintf("\033[1;33m%d\033[m", inn.attributes[i])
 		else
-			linebuf[2]<<sprintf("%3d", inn.attributes['home'])
+			rows[map[i]]<<inn.attributes[i]
 		end
-	else
-		linebuf[2]<<'  X'
 	end
 end
 
 e=doc.root.elements['linescore']
-linebuf[1]<<sprintf("%3d%3d%3d", e.elements['r'].attributes['away'], e.elements['h'].attributes['away'], e.elements['e'].attributes['away'])
-linebuf[2]<<sprintf("%3d%3d%3d", e.elements['r'].attributes['home'], e.elements['h'].attributes['home'], e.elements['e'].attributes['home'])
+['r', 'h', 'e'].each do |i|
+	['away', 'home'].each do |j|
+		rows[map[j]]<<e.elements[i].attributes[j]
+	end
+end
 
+table = Terminal::Table.new :headings => head, :rows => rows
+table.style = {:padding_left => 2}
+
+puts table
+
+linebuf=[]
 linebuf<<''
 
 #wp, lp,
@@ -156,7 +164,8 @@ linebuf<<pitcher(doc, "away")
 linebuf<<hitter(doc, "home")
 linebuf<<pitcher(doc, "home")
 
-doc.elements.each('boxscore/game_info') do |e|
+e=doc.root.elements['game_info']
+if(e)
 	linebuf<<tag_convert(e.text)
 end
 puts linebuf
