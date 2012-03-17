@@ -173,21 +173,20 @@ table.style = {:padding_left => 2}
 
 puts table
 
-linebuf=[]
-linebuf<<''
-
 #wp, lp,
 
 e = doc.root.elements['post_game'].elements['winning_pitcher'] 
-linebuf<<sprintf("W: %s (%d-%d ERA %s)", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['era'])
+printf("\033[1;31mW: %s (%d-%d ERA %s)\033[m", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['era'])
 
 e = doc.root.elements['post_game'].elements['losing_pitcher']
-linebuf<<sprintf("L: %s (%d-%d ERA %s)", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['era'])
+printf("  \033[1;32mL: %s (%d-%d ERA %s)\033[m", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['era'])
 
 e = doc.root.elements['post_game'].elements['save_pitcher']
 if(e)
-    linebuf<<sprintf("SV: %s (%d-%d %d S ERA %s)", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['saves'], e.attributes['era'])
+    printf("   \033[1;33mSV: %s (%d-%d %d S)\033[m", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['saves'], e.attributes['era'])
 end
+
+puts
 
 xml_data = Net::HTTP.get_response(URI.parse(url+'/game_events.xml')).body
 doc = REXML::Document.new(xml_data)
@@ -196,13 +195,12 @@ puts scoring_summary(doc, away_name, home_name)
 
 xml_data = Net::HTTP.get_response(URI.parse(url+'/boxscore.xml')).body
 doc = REXML::Document.new(xml_data)
-linebuf<<hitter(doc, "away")
-linebuf<<pitcher(doc, "away")
-linebuf<<hitter(doc, "home")
-linebuf<<pitcher(doc, "home")
+puts hitter(doc, "away")
+puts pitcher(doc, "away")
+puts hitter(doc, "home")
+puts pitcher(doc, "home")
 
 e=doc.root.elements['game_info']
 if(e)
-	linebuf<<tag_convert(e.text)
+	puts tag_convert(e.text)
 end
-puts linebuf
