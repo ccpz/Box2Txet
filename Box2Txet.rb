@@ -8,7 +8,10 @@ def wrap(s, width=60)
 end
 
 def tag_convert(str)
-	str.gsub(/^<br\/>/, "").gsub(/<br\/>/, "\n").gsub(/<b>(.*?)<\/b>:/, '  \1:').gsub(/<b>(.*?)<\/b>/, '\1')
+	str = str.gsub(/^<br\/>/, "").gsub(/<br\/>/, "\n").gsub(/<b>(.*?)<\/b>:/, '  \1:').gsub(/<b>(.*?)<\/b>/, '\1').gsub(/(.*:)/, "\033[1;33m"+'\1'+"\033[m")
+	ret_str='';
+	str.each_line {|s| ret_str+=wrap(s)}
+	return ret_str
 end
 
 def hitter_header(team)
@@ -57,7 +60,7 @@ def hitter(doc, filter)
 		linebuf<<tag_convert(e.to_a.join("").gsub(/\n/, '')).gsub(/\. */, "\n")<<""
 	end
 	doc.elements.each('boxscore/batting[@team_flag="'+filter+'"]/text_data') do |e|
-		linebuf<<tag_convert(e.text).gsub(/(.*:)/, "\033[1;33m"+'\1'+"\033[m")
+		linebuf<<tag_convert(e.text)
 	end
 	linebuf
 end
