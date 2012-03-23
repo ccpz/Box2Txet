@@ -108,7 +108,7 @@ end
 
 def scoring_summary(doc, away, home)
 	table = Terminal::Table.new
-	table.style = {:width => 80}
+	table.style = {:width => 80, :border_x => " ", :border_y => " ", :border_i => " "}
 	table.headings = [away, home, '']
 	inning=''
 	REXML::XPath.each( doc, "//atbat[@away_team_runs]") do |e|
@@ -172,7 +172,7 @@ e=doc.root.elements['linescore']
 end
 
 table = Terminal::Table.new :headings => head, :rows => rows
-table.style = {:padding_left => 2}
+table.style = {:padding_left => 2, :border_x => " ", :border_y => " ", :border_i => " "}
 
 puts table
 
@@ -199,8 +199,8 @@ puts scoring_summary(doc, away_name, home_name)
 xml_data = Net::HTTP.get_response(URI.parse(url+'/boxscore.xml')).body
 doc = REXML::Document.new(xml_data)
 puts hitter(doc, "away")
-puts pitcher(doc, "away")
 puts hitter(doc, "home")
+puts pitcher(doc, "away")
 puts pitcher(doc, "home")
 
 e=doc.root.elements['game_info']
