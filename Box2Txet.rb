@@ -179,10 +179,14 @@ puts table
 #wp, lp,
 
 e = doc.root.elements['post_game'].elements['winning_pitcher'] 
-printf("\033[1;31mW: %s (%d-%d ERA %s)\033[m", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['era'])
+if(e.attributes['name_display_roster'].length>0)
+	printf("\033[1;31mW: %s (%d-%d ERA %s)\033[m", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['era'])
+end
 
 e = doc.root.elements['post_game'].elements['losing_pitcher']
-printf("  \033[1;32mL: %s (%d-%d ERA %s)\033[m", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['era'])
+if(e.attributes['name_display_roster'].length>0)
+	printf("  \033[1;32mL: %s (%d-%d ERA %s)\033[m", e.attributes['name_display_roster'], e.attributes['wins'], e.attributes['losses'], e.attributes['era'])
+end
 
 e = doc.root.elements['post_game'].elements['save_pitcher']
 if(e)
