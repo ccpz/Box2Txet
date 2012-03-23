@@ -15,7 +15,7 @@ def tag_convert(str)
 end
 
 def hitter_header(team)
-	str=sprintf("\033[1;32;45m%-25s", team)
+	str=sprintf("\033[1;32;44m%-25s", team)
 	['AB', 'R', 'H', 'RBI', 'BB', 'SO', 'LOB', '  AVG'].each {|x|
 		str<<sprintf("%4s", x)
 	}
@@ -53,7 +53,7 @@ def hitter(doc, filter)
         so = e.attributes['so']
         lob = e.attributes['lob']
         avg = e.attributes['avg']
-            linebuf<<sprintf("\033[1;32;45m%-25s%4s%4s%4s%4s%4s%4s%4s %4s\033[m", '', ab, r, h, rbi, bb, so, lob, avg)
+            linebuf<<sprintf("\033[1;32;44m%-25s%4s%4s%4s%4s%4s%4s%4s %4s\033[m", '', ab, r, h, rbi, bb, so, lob, avg)
     end
 	linebuf<<'';
 	doc.elements.each('boxscore/batting[@team_flag="'+filter+'"]/note') do |e|
@@ -66,7 +66,7 @@ def hitter(doc, filter)
 end
 
 def pitcher_header(team)
-	str=sprintf("\033[1;32;45m%-25s", team)
+	str=sprintf("\033[1;32;44m%-25s", team)
 	['IP', 'H', 'R', 'ER', 'BB', 'SO', 'HR', '   ERA'].each {|x|
 		str<<sprintf("%4s", x)
 	}
@@ -101,7 +101,7 @@ def pitcher(doc, filter)
         so = e.attributes['so']
         hr = e.attributes['hr']
         era = e.attributes['era']
-        linebuf<<sprintf("\033[1;32;45m%-25s%4s%4s%4s%4s%4s%4s%4s%6s\033[m", '', ip,  h, r, er, bb, so, hr, era)
+        linebuf<<sprintf("\033[1;32;44m%-25s%4s%4s%4s%4s%4s%4s%4s%6s\033[m", '', ip,  h, r, er, bb, so, hr, era)
     end
     linebuf
 end
