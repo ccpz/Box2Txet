@@ -167,10 +167,9 @@ end
 e=doc.root.elements['linescore']
 ['r', 'h', 'e'].each do |i|
 	['away', 'home'].each do |j|
-		rows[map[j]]<<e.elements[i].attributes[j]
+		rows[map[j]]<<"\033[1;35m"+e.elements[i].attributes[j]+"\033[m"
 	end
 end
-
 table = Terminal::Table.new :headings => head, :rows => rows
 table.style = {:padding_left => 2, :border_x => " ", :border_y => " ", :border_i => " "}
 
