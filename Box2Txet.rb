@@ -8,7 +8,7 @@ def wrap(s, width=60)
 end
 
 def tag_convert(str)
-	str = str.gsub(/^<br\/>/, "").gsub(/<br\/>/, "\n").gsub(/<b>(.*?)<\/b>:/, '  \1:').gsub(/<b>(.*?)<\/b>/, '\1').gsub(/(.*:)/, "\033[1;33m"+'\1'+"\033[m")
+	str = str.gsub(/<\/*span>/, "").gsub(/^<br\/>/, "").gsub(/<br\/>/, "\n").gsub(/<b>(.*?)<\/b>:/, '  \1:').gsub(/<b>(.*?)<\/b>/, '\1').gsub(/(.*:)/, "\033[1;33m"+'\1'+"\033[m")
 	ret_str='';
 	str.each_line {|s| ret_str+=wrap(s)}
 	return ret_str
