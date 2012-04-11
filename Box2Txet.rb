@@ -111,7 +111,7 @@ def scoring_summary(doc, away, home)
 	table.style = {:width => 80, :border_x => " ", :border_y => " ", :border_i => " "}
 	table.headings = [away, home, '']
 	inning=''
-	REXML::XPath.each( doc, "//atbat[@away_team_runs]") do |e|
+	REXML::XPath.each( doc, "//*[@away_team_runs]") do |e|
 		away_score = e.attributes['away_team_runs'].to_s
 		home_score = e.attributes['home_team_runs'].to_s
 		if(e.parent.name.to_s=="top")
