@@ -1,10 +1,14 @@
 This script read MLB gameday XML file from: http://gd2.mlb.com/components/game/mlb/,
 then convert to plain text
 
-USAGE:
-./Box2Txet.rb <Path>
+#INSTALL
+pip install pipenv
+pipenv install
 
-Example:
-./Box2Txet.rb /year_2012/month_03/day_15/gid_2012_03_15_nyamlb_wasmlb_1/
+#USAGE
+pipenv run python3 ./main.py <Year> <Month> <Day> <team>
 
-This will read gameday data at http://gd2.mlb.com/components/game/mlb/year_2012/month_03/day_15/gid_2012_03_15_nyamlb_wasmlb_1/
+#Example
+pipenv run python3 ./main.py 2019 04 07 NYY
+
+This will read gameday data at http://gd2.mlb.com/components/game/mlb/year_2019/month_04/day_07/gid_2019_04_07_nyamlb_balmlb_1/
